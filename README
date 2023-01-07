@@ -1,0 +1,49 @@
+HOW TO RUN
+- All of the following lines of code should be entered into the terminal
+run -> docker compose up
+- Wait until the previous line of code has stopped running, denoted by "winding down" printed to the console.
+- This terminal window should now be left as is. Write the following lines in a new terminal window. 
+- run the following line of code with the name of the folder containing the files docker-compose.yml and pii_masking.py at the end
+run -> python3 pii_masking.py {FOLDER NAME HERE}
+- You may then be prompted for a password, this is just your computer password.
+- When you see the 'Encryption and upload successful!' displayed the program is done running and the data can now be access from the Postgres Database.
+
+
+ASSUMPTIONS - What are the assumptions you made?
+- I assumed that the file with the data json would be located in the same location everytime.
+- I assumed that if the data had the correct first field (user_id) that it was therefore a correct data entry
+- I assumed that none of the data entries exceeded the maximum number of chars allowed in the database
+- I assumed that the app_version was only the first number stored because versions such as 4.3.9 cannot be stored as ints
+
+
+ENCRYPTION - How can PII be masked?
+- I used a seed to randomly shuffle a list of numbers from 0-9. This allows the key to easily be reproduced or changed. 
+- The key encrypts the data by disguising numbers as randomly generated other numbers while maintaining their integrity.
+- Duplicates are still easy to identify.
+- The numbers are then reversed to add another layer of complexity. 
+- The seed means that at not place in the code is the key to the encryption physically written adding a layer of security.
+
+
+RECOVERY - How can PII be recovered later on?
+- PII can be recovered by reversing the order of the numbers and then using the key.
+- By generating the list of numbers from 0-9 with the SAME seed you can acquire the PII. You just need to determine what index the
+  number is located at and that is the original number. 
+
+
+PRODUCTION - How would you deploy this application in production?
+- I would create a single docker-compose file to run all of the applications included in the project.
+- I would also automate the downloading process and add checks to ensure all of the installs are up-to-date and update them if needed.
+
+
+SCALING - How can this application scale with a growing dataset.
+- With very simplistic features this process could be easily duplicated over larger data sets. 
+- To reduce storage needs, I would upload all data that didn't need to be encrpyted immediately to the database instead of storing it 
+  through the whole process. 
+
+
+FUTURE ENHANCEMENTS - What other components would you want to add to make this production ready?
+- Include the python file in the docker-compose.yml to reduce number of commands required for running.
+  - This would require adding dependencies to ensure pii_masking.py is NOT run until after the containers are running.
+- Create a method to read from the postgres and decode the PIIs.
+- I would create more concrete checks to ensure the data being received was correctly formatted and with the bounds of size. 
+- I would eliminate the need to have the folder name entered into the command line.
